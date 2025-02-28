@@ -1,20 +1,7 @@
 {
-  adapters = {
-    http = { type = "http"; baseUrl = "https://api.example.com"; };
-  };
-
-  tasks = {
-    fetchData = {
-      adapter = "http";
-      endpoint = "/data";
-      method = "GET";
-      dependsOn = [];
-    };
-
-    processData = {
-      command = "python process.py";
-      dependsOn = ["fetchData"];
-    };
-  };
+  adapters = [ "aws" "gcp" ];
+  tasks = [
+    { name = "fetch_data"; command = "curl https://example.com/data"; }
+    { name = "process_data"; command = "python3 process.py"; }
+  ];
 }
-
