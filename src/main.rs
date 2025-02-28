@@ -1,21 +1,24 @@
-mod parser;
-
-use std::fs;
-use parser::parse_nix;
+use std::{env, fs};
 
 fn main() {
-    let nix_file = "workflow.nix";
+    let mut iter = env::args().skip(1).peekable();
+    if iter.peek().is_none() {
+        eprintln!("Usage: dump-ast <file>");
+        return;
+    }
+    for file in iter {
+        let content = match fs::read_to_string(file) {
+            Ok(content) => content,
+            Err(err) => {
+                eprintln!("error reading file: {}", err);
+                return;
+            }
+        };
+        let parse = rnix::Root::parse(&content);
 
-    // Read workflow.nix
-    let nix_code = fs::read_to_string(nix_file)
-        .expect("Failed to read Nix workflow file");
-
-    // Parse and extract tasks
-    let tasks = parse_nix(&nix_code);
-    
-    println!("Extracted Tasks:");
-    for task in tasks {
-        println!("- {}", task);
+        for error in parse.errors() {
+            println!("error: {}", error);
+        }
+        println!("{:#?}", parse.tree());
     }
 }
-

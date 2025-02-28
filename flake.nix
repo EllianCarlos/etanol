@@ -4,45 +4,32 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable"; 
     systems.url = "github:nix-systems/default";
+    cargo2nix.url = "github:cargo2nix/cargo2nix/unstable";
+    nixpkgs.follows = "cargo2nix/nixpkgs";
     flake-utils = {
         url = "github:numtide/flake-utils";
+        follows = "cargo2nix/flake-utils";
         inputs.systems.follows = "systems";
     };
-    import-cargo.url = "github:edolstra/import-cargo";
   };
 
-  outputs = { self, systems, nixpkgs, flake-utils, import-cargo }:
+  outputs = { self, systems, nixpkgs, flake-utils, cargo2nix }:
     flake-utils.lib.eachDefaultSystem (system:
       let 
-        inherit (import-cargo.builders) importCargo;
-        pkgs = import nixpkgs { inherit system; };
-      in {
-        defaultPackage = pkgs.stdenv.mkDerivation {
-          pname = "etanol";
-          name = "etanol";
-          src = self;
-          version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).package.version;
+        pkgs = import nixpkgs { inherit system; overlays = [ cargo2nix.overlays.default ]; };
 
-          preBuild = ''
-            cargo generate-lockfile
-          '';
-
-          buildInputs = [
-            (importCargo { lockFile = ./Cargo.lock; inherit pkgs; }).cargoHome
-            pkgs.cargo
-            pkgs.rustc
-          ];
-
-          buildPhase = ''
-            cargo build --release --offline
-          '';
-
-          installPhase = ''
-            install -Dm775 ./target/release/etanol $out/bin/etanol
-          '';
+        rustPkgs = pkgs.rustBuilder.makePackageSet {
+          rustVersion = "1.75.0";
+          packageFun = import ./Cargo.nix;
+          extraRustComponents = [ "clippy" "rustfmt" ];
+        };
+      in rec {
+        packages = {
+          etanol = (rustPkgs.workspace.etanol {});
+          default = packages.etanol;
         };
 
-        devShells.default = pkgs.mkShell {
+        devShells.default = rustPkgs.workspaceShell {
             buildInputs = with pkgs; [
               rustc
               cargo
