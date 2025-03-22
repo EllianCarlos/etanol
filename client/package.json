@@ -1,0 +1,42 @@
+{
+  "name": "kotlin-lsp-client",
+  "displayName": "Kotlin LSP Client",
+  "description": "VS Code client for Kotlin LSP written in Rust",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "package": "vsce package"
+  },
+  "main": "./dist/extension.js",
+  "dependencies": {
+    "vscode": "^1.1.37",
+    "vscode-languageclient": "^9.0.1"
+  },
+  "activationEvents": [
+    "onLanguage:kotlin"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "kotlin",
+        "extensions": [
+          ".kt",
+          ".kts"
+        ],
+        "aliases": [
+          "Kotlin",
+          "kotlin"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.11",
+    "tsc": "^2.0.4",
+    "typescript": "^5.8.2"
+  }
+}
