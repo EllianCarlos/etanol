@@ -10,8 +10,10 @@ let client: LanguageClient;
 
 export async function activate(context: vscode.ExtensionContext) {
     const serverPath = path.join(context.extensionPath, "..", "target", "release", "etanol");
+
+    const outputChannel = vscode.window.createOutputChannel("Kotlin LSP");
     
-    console.log("LSP server path %s", serverPath);
+    outputChannel.appendLine("LSP server path %s", serverPath);
 
     let serverOptions: ServerOptions = {
         run: { command: serverPath },
@@ -20,15 +22,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
     let clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: "file", language: "kotlin" }],
+        outputChannel,
     };
 
     client = new LanguageClient("kotlinLsp", "Kotlin Language Server", serverOptions, clientOptions);
     
-    console.log("Starting LSP client...")
+    outputChannel.appendLine("Starting LSP client...")
     
     // Start the client and wrap it in a custom disposable object
     const clientDisposable = await client.start();
-    console.log("Language Client Started.");
+    outputChannel.appendLine("Language Client Started.");
 
     // Create a custom disposable object that calls client.stop() when disposed
     context.subscriptions.push({

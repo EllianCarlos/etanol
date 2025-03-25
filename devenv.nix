@@ -8,6 +8,7 @@
   packages = [ 
     pkgs.git
     pkgs.vscode
+    pkgs.kotlin
   ];
 
   # https://devenv.sh/languages/
