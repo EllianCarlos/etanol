@@ -13,4 +13,4 @@ and you have a shell with everything ready to go. If you use macos or windows, h
 ## Testing
 
 After entering a devenv shell, open the client folder in vscode, press `F5`, this will open another vscode windows now running in the extension developer mode. After that you should be able to be using the LSP.
-If you need to debug enable developer tools after: `Help > Toggle Developer Tools` in the new window.
+If you need to debug enable developer tools after: `View > Outputs` in the toolbar, then select `Kotlin Language Server`
