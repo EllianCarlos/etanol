@@ -51,10 +51,6 @@ impl LanguageServer for KotlinLsp {
     }
 
     async fn completion(&self, params: CompletionParams) -> Result<Option<CompletionResponse>> {
-        let position = params.text_document_position;
-        let line = position.position.line;
-        let character = position.position.character;
-
-        handle_completion(&self.client, line, character).await
+        handle_completion(&self.client, params).await
     }
 }
