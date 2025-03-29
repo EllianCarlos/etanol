@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 env = "1.0.1"
+regex = "1.11.1"
 tokio = { version = "1", features = ["full"]}
 tower-lsp = "0.20.0"
 
