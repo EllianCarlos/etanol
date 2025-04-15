@@ -23,7 +23,6 @@ jobs:
     - name: Build tree sitter
       working-directory: vendor/tree-sitter-kotlin
       run: |
-          cd vendor/tree-sitter-kotlin
           npm install
           npx tree-sitter generate
     - name: Build
