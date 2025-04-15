@@ -20,8 +20,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-    - name: Pre Build tree sitter
-      run: ls vendor/tree-sitter-kotlin && cd vendor/tree-sitter-kotlin && npm install && npx tree-sitter generate && cd ../..
+    - name: Go to tree sitter
+      run: cd vendor/tree-sitter-kotlin
+    - name: Build tree sitter
+      run: npm install && npx tree-sitter generate
+    - name: Leave tree sitter
+      run: cd ../.. && ls
     - name: Build
       run: cargo build --verbose
     - name: Run tests
