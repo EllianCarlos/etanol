@@ -10,6 +10,10 @@ devenv shell
 
 and you have a shell with everything ready to go. If you use macos or windows, help setting those environments is welcome! 
 
+## Other modules
+
+This projects uses interoperability between rust and c to use the [tree-sitter-kolint](https://github.com/EllianCarlos/tree-sitter-kotlin.git). For that setup correctly the modules in `.gitmodules`.
+
 You're also gonna need to port the `tree-sitter-kotlin` to `c` to enable interop with Rust. For this do:
 ```sh 
 cd vendor/tree-sitter-kotlin
@@ -18,14 +22,12 @@ npx tree-sitter generate
 cd ../..
 ```
 
-Or just:
+Or with devenv just:
 ```sh
 cd vendor/tree-sitter-kotlin
 tree-sitter generate
 cd ../..
 ```
-
-In NixOS (or an OS supporting devenv).
 
 ## Testing
 

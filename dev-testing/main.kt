@@ -1,4 +1,4 @@
 fun main() {
-    println("Hello, Kotlin!");
-    return;
+    println("Hello, Kotlin!")
+    return
 }
