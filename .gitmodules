@@ -1,0 +1,3 @@
+[submodule "vendor/tree-sitter-kotlin"]
+	path = vendor/tree-sitter-kotlin
+	url = https://github.com/EllianCarlos/tree-sitter-kotlin.git

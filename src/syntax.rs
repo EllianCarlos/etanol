@@ -5,6 +5,7 @@ use regex::Regex;
 
 use crate::server::KotlinLsp;
 use crate::util::create_temp_file;
+use crate::interop::tree_sitter::get_parser;
 
 pub async fn check_syntax(lsp: &KotlinLsp, code: &str, uri: &str) {
     let temp_file = create_temp_file(lsp, code).await;
@@ -60,4 +61,10 @@ pub async fn check_syntax(lsp: &KotlinLsp, code: &str, uri: &str) {
 
         lsp.client.publish_diagnostics(Url::parse(uri).unwrap(), diagnostics, None).await;
     }
+    let mut parser = get_parser();
+    let tree = parser.parse(&code, None).expect("Failed to parse");
+    let root_node_kind = tree.root_node().kind().to_string();
+    lsp.client
+        .log_message(MessageType::INFO, format!("Root node type: {}", root_node_kind))
+        .await;
 }
