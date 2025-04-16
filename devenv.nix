@@ -9,6 +9,7 @@
     pkgs.git
     pkgs.vscode
     pkgs.kotlin
+    pkgs.tree-sitter
   ];
 
   # https://devenv.sh/languages/

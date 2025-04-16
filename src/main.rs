@@ -8,6 +8,7 @@ mod server;
 mod handlers;
 mod syntax;
 mod util;
+mod interop;
 
 use crate::server::KotlinLsp;
 
