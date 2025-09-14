@@ -1,5 +1,6 @@
 # TODO
 
-- [ ] Change from `kotlinc` to some type of AST based parser.
-- [ ] Add errors squiggles on compilation warning or errors
-- [ ] Add colors to language
+- [ ] Set up automated tests for the server.
+- [ ] Integrate `clippy` into the CI pipeline to enforce code quality.
+- [ ] Implement diagnostics (error squiggles) by detecting errors in the syntax tree.
+- [ ] Add syntax highlighting using the `tree-sitter-highlight` crate.
