@@ -28,5 +28,37 @@ jobs:
           npx tree-sitter generate
     - name: Build
       run: cargo build --verbose
+    - name: Clippy
+      run: |
+          rustup component add clippy
+          cargo clippy --all-targets --all-features -- -D warnings
     - name: Run tests
       run: cargo test --verbose
+
+  client:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    - name: Build tree sitter
+      working-directory: vendor/tree-sitter-kotlin
+      run: |
+          npm install
+          npx tree-sitter generate
+    - name: Build release server binary
+      run: cargo build --release --verbose
+    - name: Install client dependencies
+      working-directory: client
+      run: npm install
+    - name: Type-check client
+      working-directory: client
+      run: npx tsc --noEmit
+    - name: Test client
+      working-directory: client
+      run: npx mocha

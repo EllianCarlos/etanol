@@ -60,9 +60,13 @@ pub async fn check_syntax(lsp: &KotlinLsp, code: &str, uri: &str) {
         }
 
         lsp.client.publish_diagnostics(Url::parse(uri).unwrap(), diagnostics, None).await;
+
+        // Each call to create_temp_file makes its own uniquely-named file (see
+        // util.rs), so it is safe to remove it now that kotlinc is done reading it.
+        let _ = tokio::fs::remove_file(&temp_path).await;
     }
     let mut parser = get_parser();
-    let tree = parser.parse(&code, None).expect("Failed to parse");
+    let tree = parser.parse(code, None).expect("Failed to parse");
     let root_node_kind = tree.root_node().kind().to_string();
     lsp.client
         .log_message(MessageType::INFO, format!("Root node type: {}", root_node_kind))

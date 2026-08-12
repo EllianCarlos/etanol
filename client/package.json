@@ -8,11 +8,11 @@
   },
   "scripts": {
     "compile": "tsc",
-    "package": "vsce package"
+    "package": "vsce package",
+    "test": "mocha"
   },
   "main": "./dist/extension.js",
   "dependencies": {
-    "vscode": "^1.1.37",
     "vscode-languageclient": "^9.0.1"
   },
   "activationEvents": [
@@ -32,11 +32,24 @@
         ],
         "configuration": "./language-configuration.json"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Kotlin LSP",
+      "properties": {
+        "kotlinLsp.serverPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the etanol server binary. Leave empty to use the dev-mode default (../target/release/etanol relative to the extension)."
+        }
+      }
+    }
   },
   "devDependencies": {
+    "@types/mocha": "^10.0.10",
     "@types/node": "^22.13.11",
-    "tsc": "^2.0.4",
+    "@types/vscode": "^1.60.0",
+    "mocha": "^10.7.3",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }
 }

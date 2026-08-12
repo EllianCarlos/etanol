@@ -9,6 +9,8 @@ mod handlers;
 mod syntax;
 mod util;
 mod interop;
+#[cfg(test)]
+mod test_util;
 
 use crate::server::KotlinLsp;
 

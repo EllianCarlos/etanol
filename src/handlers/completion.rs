@@ -117,3 +117,100 @@ fn create_variable_completion(label: &str, insert_text: &str) -> CompletionItem 
         ..CompletionItem::default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_util::test_lsp;
+
+    #[test]
+    fn detects_function_keyword_context() {
+        assert!(matches!(get_code_context("fun main() {}", 0), Context::Function));
+    }
+
+    #[test]
+    fn detects_variable_keyword_context() {
+        assert!(matches!(get_code_context("val x = 1", 0), Context::Variable));
+    }
+
+    #[test]
+    fn falls_back_to_keyword_context_for_code_without_val_or_fun() {
+        assert!(matches!(get_code_context("println(1)", 0), Context::Keyword));
+    }
+
+    #[test]
+    fn empty_code_falls_back_to_keyword_context() {
+        assert!(matches!(get_code_context("", 0), Context::Keyword));
+    }
+
+    // KNOWN BUG: every caller (see handle_completion below) passes an LSP
+    // *line number* (params.text_document_position.position.line) as the
+    // `line` argument, but get_code_context slices the source with it as a
+    // *byte offset* instead (`&code[line as usize..]`). Any completion
+    // request where the document is shorter than the cursor's line number
+    // panics the request. This test pins the crash down explicitly so a fix
+    // shows up as a test failure to update, not a silent behavior change.
+    #[test]
+    #[should_panic]
+    fn line_number_used_as_byte_offset_panics_on_short_documents() {
+        let code = "val x = 1"; // 9 bytes
+        let _ = get_code_context(code, 100); // "line 100" treated as byte offset 100
+    }
+
+    fn write_temp_kotlin_file(contents: &str) -> (Url, std::path::PathBuf) {
+        let path = std::env::temp_dir().join(format!(
+            "etanol_completion_test_{}_{}.kt",
+            std::process::id(),
+            contents.len()
+        ));
+        std::fs::write(&path, contents).expect("failed to write temp fixture file");
+        (Url::from_file_path(&path).unwrap(), path)
+    }
+
+    #[tokio::test]
+    async fn handle_completion_returns_function_completions_for_fun_context() {
+        let (service, _documents) = test_lsp();
+        let (uri, path) = write_temp_kotlin_file("fun main() {}");
+
+        let params = CompletionParams {
+            text_document_position: TextDocumentPositionParams {
+                text_document: TextDocumentIdentifier { uri },
+                position: Position { line: 0, character: 0 },
+            },
+            work_done_progress_params: Default::default(),
+            partial_result_params: Default::default(),
+            context: None,
+        };
+
+        let response = handle_completion(&service.inner().client, params).await.unwrap();
+        let _ = std::fs::remove_file(&path);
+
+        match response {
+            Some(CompletionResponse::Array(items)) => {
+                assert!(!items.is_empty());
+                assert!(items.iter().any(|i| i.label == "println"));
+            }
+            other => panic!("expected a non-empty completion array, got {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn handle_completion_returns_none_for_missing_document() {
+        let (service, _documents) = test_lsp();
+
+        let params = CompletionParams {
+            text_document_position: TextDocumentPositionParams {
+                text_document: TextDocumentIdentifier {
+                    uri: Url::parse("file:///does/not/exist.kt").unwrap(),
+                },
+                position: Position { line: 0, character: 0 },
+            },
+            work_done_progress_params: Default::default(),
+            partial_result_params: Default::default(),
+            context: None,
+        };
+
+        let response = handle_completion(&service.inner().client, params).await.unwrap();
+        assert!(response.is_none());
+    }
+}
